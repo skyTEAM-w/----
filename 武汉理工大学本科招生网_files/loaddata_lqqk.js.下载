@@ -1,0 +1,206 @@
+$(document).ready(function() {
+    hqnf($('#select1>a.cut').text())
+    $("#select2>a").eq(0).addClass('cut')
+    hqkl(parseInt($('#select2>a.cut').text()), $('#select1>a.cut').text())
+    $("#select3>a").eq(0).addClass('cut')
+    hqlq(parseInt($('#select2>a.cut').text()), $('#select1>a.cut').text(), $('#select3>a.cut').text())
+
+
+    $('#select1>a:not(.more)').click(function() {
+        $(this).addClass('cut').siblings('a:not(.more)').removeClass('cut');
+        // console.log($(this).text());
+        hqnf($(this).text())
+        if ($("#select2>a").length > 0) {
+            $("#select2>a").eq(0).addClass('cut')
+            hqkl(parseInt($('#select2>a.cut').text()), $('#select1>a.cut').text())
+            if ($("#select3>a").length > 0) {
+                $("#select3>a").eq(0).addClass('cut')
+                hqlq(parseInt($('#select2>a.cut').text()), $('#select1>a.cut').text(), $('#select3>a.cut').text())
+            } else {
+                alert('抱歉,暂未找到相关数据')
+                var sbb = '<ul class="tbu th-b"><li style="text-align:center;width: 100% !important;">未找到相关数据</li></ul>'
+                $("#slqqks").html(sbb);
+                $("#lqqk").html(sbb);
+                return
+            }
+
+        } else {
+            alert('抱歉,暂未找到相关数据')
+            var sbb = '<ul class="tbu th-b"><li style="text-align:center;width: 100% !important;">未找到相关数据</li></ul>'
+            var sb = '<p></p>'
+            $("#select3").html(sb);
+            $("#slqqks").html(sbb);
+            $("#lqqk").html(sbb);
+            return
+        }
+    })
+
+    function hqnf(sf) {
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: 'https://zs.whut.edu.cn/enroll-info/recruitByMajor/selYearbyProvince.do',
+            data: { province: sf },
+            // dataType: "json",
+            success: function(datas) {
+                // console.log(datas);
+                var data = datas.data;
+                var nff = '';
+                $.each(data, function(i, json) {
+
+                    nff += '<a href="javascript:void(0)">' + json + '</a>';
+
+                })
+                $("#select2").html(nff);
+            }
+        })
+    }
+    $("#select2").on("click", "a", function() {
+        $(this).addClass('cut').siblings('a:not(.more)').removeClass('cut');
+        // console.log(parseInt($(this).text()), $('#select1>a.cut').text());
+        hqkl(parseInt($(this).text()), $('#select1>a.cut').text())
+        if ($("#select3>a").length > 0) {
+            $("#select3>a").eq(0).addClass('cut')
+            hqlq(parseInt($('#select2>a.cut').text()), $('#select1>a.cut').text(), $('#select3>a.cut').text())
+        } else {
+            alert('抱歉,暂未找到相关数据')
+            var sbb = '<ul class="tbu th-b"><li style="text-align:center;width: 100% !important;">未找到相关数据</li></ul>'
+            var sb = '<p></p>'
+            $("#slqqks").html(sbb);
+            $("#lqqk").html(sbb);
+            return
+        }
+    });
+
+    function hqkl(nf, sf) {
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: 'https://zs.whut.edu.cn/enroll-info/recruitByMajor/selSubjectTypeByProvinceAndYear.do',
+            data: { province: sf, year: nf },
+            // dataType: "json",
+            success: function(datas) {
+                // console.log(datas);
+                var data = datas.data;
+                var nff = '';
+                $.each(data, function(i, json) {
+
+                    nff += '<a href="javascript:void(0)">' + json + '</a>';
+
+                })
+                $("#select3").html(nff);
+            }
+        })
+    }
+
+    $("#select3").on("click", "a", function() {
+        $(this).addClass('cut').siblings('a:not(.more)').removeClass('cut');
+        hqlq(parseInt($('#select2>a.cut').text()), $('#select1>a.cut').text(), $(this).text())
+    });
+
+
+
+    function hqlq(nf, sf, kl) {
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: 'https://zs.whut.edu.cn/enroll-info/recruitByMajor/selRecruitByProvinceAndYearAndSubjectType.do',
+            data: { province: sf, year: nf, subjectType: kl},
+            // dataType: "json",
+            success: function(datas) {
+                //console.log(datas);
+                var slqqk = datas.ext.recruitStatisticsList;
+                var fzylq = datas.ext.recruitByMajorList;
+                var nff = '';
+                var nfff = '';
+                $.each(slqqk, function(i, json) {
+                    if (json.skx == null) {
+                        json.skx = '--'
+                    }
+                    if (json.zdf == null) {
+                        json.zdf = '--'
+                    }
+                    if (json.wcz == null) {
+                        json.wcz = '--'
+                    }
+                    if (json.zgf == null) {
+                        json.zgf = '--'
+                    }
+                    if (json.pjf == null) {
+                        json.pjf = '--'
+                    }
+                    if (json.subjectType == "艺术(不分文理)") {
+                        json.subjectType = '艺术'
+                    }
+					/* //判断分数是否存在小数点
+                    json.skx = json.skx.substr(0, json.skx.lastIndexOf("."));
+                    json.zdf = json.zdf.substr(0, json.zdf.lastIndexOf("."));
+                    json.wcz = json.wcz.substr(0, json.wcz.lastIndexOf("."));
+                    json.zgf = json.zgf.substr(0, json.zgf.lastIndexOf("."));
+                    json.pjf = json.pjf.substr(0, json.pjf.lastIndexOf(".")); */
+                    nff += '<ul class="tbu th-b"><li>' + json.year + '</li><li>' + json.province + '</li><li>' + json.subjectType + '</li><li>' + json.type + '</li><li>' + json.skx + '</li><li>' + json.zgf + '</li><li>' + json.zdf + '</li><li>' + json.wcz + '</li><li>' + json.pjf + '</li></ul>';
+					
+
+                })
+                $.each(fzylq, function(i, json) {
+                    if (json.skx == null) {
+                        json.skx = '--'
+                    }
+                    if (json.zdf == null) {
+                        json.zdf = '--'
+                    }
+                    if (json.wcz == null) {
+                        json.wcz = '--'
+                    }
+                    if (json.zgf == null) {
+                        json.zgf = '--'
+                    }
+                    if (json.pjf == null) {
+                        json.pjf = '--'
+                    }
+                    if (json.electiveSubject == null) {
+                        json.electiveSubject = '--'
+                    }
+                    if (json.remarks == null) {
+                        json.remarks = '--'
+                    }
+                    if (json.subjectType == "艺术(不分文理)") {
+                        json.subjectType = '艺术'
+                    }
+					/* //判断分数是否存在小数点
+                    json.skx = json.skx.substr(0, json.skx.lastIndexOf("."));
+                    json.zdf = json.zdf.substr(0, json.zdf.lastIndexOf("."));
+                    json.wcz = json.wcz.substr(0, json.wcz.lastIndexOf("."));
+                    json.zgf = json.zgf.substr(0, json.zgf.lastIndexOf("."));
+                    json.pjf = json.pjf.substr(0, json.pjf.lastIndexOf(".")); */
+                    nfff += '<ul class="tbu th-b"><li>' + json.type + '</li><li>' + json.majorType + '</li><li>' + json.skx + '</li><li>' + json.zgf + '</li><li>' + json.zdf + '</li><li>' + json.wcz + '</li><li>' + json.pjf + '</li><li>' + json.electiveSubject + '</li></ul>';
+
+                })
+				console.log("nff:"+nff);
+				console.log("nfff:"+nfff);
+                $("#slqqks").html(nff);
+                $("#lqqk").html(nfff);
+                for (var i = 0; i < $("#slqqks .th-b").length; i++) {
+                    var ghh = $('#slqqks .th-b').eq(i).height()
+                    $('#slqqks .th-b').eq(i).children('li').css("cssText", "height:" + ghh + "px;")
+                }
+                for (var i = 0; i < $("#lqqk .th-b").length; i++) {
+                    var ghh = $('#lqqk .th-b').eq(i).height()
+                    $('#lqqk .th-b').eq(i).children('li').css("cssText", "height:" + ghh + "px;")
+                }
+                if (!(slqqk.length > 0)) {
+                    var sbb = '<ul class="tbu th-b"><li style="text-align:center;width: 100% !important;">未找到相关数据</li></ul>'
+                    $("#slqqks").html(sbb);
+                }
+                if (!(fzylq.length > 0)) {
+                    var sbb = '<ul class="tbu th-b"><li style="text-align:center;width: 100% !important;">未找到相关数据</li></ul>'
+                    $("#lqqk").html(sbb);
+                }
+            }
+        })
+    }
+
+
+
+
+})
